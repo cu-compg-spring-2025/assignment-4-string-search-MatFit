@@ -5,6 +5,7 @@ import random
 import argparse
 import matplotlib.pyplot as plt
 import naive_search
+import boyer_moore
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -72,11 +73,11 @@ def test_harness(test_functions,
         _mem_usages = [ [] for _ in range(len(test_functions))]
 
         for i in range(rounds):
-            T = get_random_string(['A', 'C', 'T', 'G'], text_size)
-            P = get_random_substring(T, pattern_size)
+            T = get_random_string(['A', 'C', 'T', 'G'], text_size) # Get big string
+            P = get_random_substring(T, pattern_size) # Get small string
 
             for j, test_function in enumerate(test_functions):
-                run_time, mem_usage = run_test(test_function, T, P)
+                run_time, mem_usage = run_test(test_function, T, P) # test it with some search algo called test_function
                 _run_times[j].append(run_time)
                 _mem_usages[j].append(mem_usage)
 
@@ -93,7 +94,7 @@ def main():
                              args.text_range[1],
                              args.text_range[2])
 
-    test_functions = [naive_search.naive_search]
+    test_functions = [naive_search.naive_search, boyer_moore.boyer_moore_search]
 
 
     run_times, mem_usages = test_harness(test_functions,
@@ -103,6 +104,8 @@ def main():
 
     fig, axs = plt.subplots(2,1, figsize=(args.width, args.height))
     fig.tight_layout(pad=3.0)
+
+    # Plot run times
     ax = axs[0]
     ax.plot(text_size_range, run_times[0], label='Naive')
     ax.set_title(f'String Search Performance(|P|= {args.pattern_size})')
@@ -112,6 +115,12 @@ def main():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
+    ax.plot(text_size_range, run_times[1], label='Boyer-Moore')
+    ax.legend(loc='best', frameon=False, ncol=3)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    # Plot memory usages
     ax = axs[1]
     ax.plot(text_size_range, mem_usages[0], label='Naive')
     ax.set_xlabel('Text size')
@@ -119,6 +128,13 @@ def main():
     ax.legend(loc='best', frameon=False, ncol=3)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+
+    ax.plot(text_size_range, mem_usages[1], label='Boyer-Moore')
+    ax.legend(loc='best', frameon=False, ncol=3)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    
+
 
 
     plt.savefig(args.out_file)
